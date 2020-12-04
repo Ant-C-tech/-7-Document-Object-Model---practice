@@ -70,7 +70,7 @@ header{
 .titleBlock__subtitle {
   margin-top: 10px;
   margin-bottom: 10px;
-   text-align: center;
+  text-align: center;
   font-family: "Kaushan Script",
     cursive;
   font-size: 28px;
@@ -83,7 +83,7 @@ header{
   display: flex;
   padding: 30px 15px;
   margin: 0 15px;
-    overflow-x: hidden;
+  overflow-x: hidden;
 }
 
 .mapContainer{
@@ -105,7 +105,6 @@ header{
 
 svg{
   width: 100%;
-  /* height: 570px; */
 }
 
 .map{
@@ -140,8 +139,8 @@ transform: scale(1.35) ;
   font-size: 16px;
   color: #ffffff;
 
-      position: relative;
-    transition: transform ease-in-out 0.5s;
+  position: relative;
+  transition: transform ease-in-out 0.5s;
 }
 
 .content-hide{
