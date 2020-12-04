@@ -115,6 +115,7 @@ transform: scale(1.35) ;
 
 .land{
   transition: fill ease-in-out 0.4s;
+  cursor: pointer;
 }
 
 
