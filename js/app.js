@@ -3,7 +3,7 @@
 import randomQuestions from './questions.js'
 import content from './content.js'
 
-//Variables
+
 let mapContainer
 let map
 let svg
