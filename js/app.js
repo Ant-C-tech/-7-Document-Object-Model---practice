@@ -13,14 +13,17 @@ let contentSection
 let country
 
 
-//Application run
-getElements()
-recalcMap()
-addListeners()
-showContent(content.main)
+initApp()
 
 
 //Functions
+function initApp() {
+    getElements()
+    recalcMap()
+    addListeners()
+    showContent(content.main)
+}
+
 function getElements() {
     mapContainer = document.querySelector('.mapContainer')
     svg = document.querySelector('svg')
