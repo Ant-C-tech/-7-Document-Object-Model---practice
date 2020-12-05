@@ -3,7 +3,6 @@
 import randomQuestions from './questions.js'
 import content from './content.js'
 
-
 const mapContainer = document.querySelector('.mapContainer')
 const map = document.querySelector('.map')
 const svg = document.querySelector('svg')
@@ -18,46 +17,37 @@ initApp()
 
 function initApp() {
     recalcMap()
+    recalcContentBlock()
     addListeners()
     showContent(content.main)
 }
 
 function addListeners() {
 
-    window.onresize = recalcMap
+    window.onresize = function () {
+        recalcMap()
+        recalcContentBlock()
+    }
 
-    //Add-Remove hint
-    for (const iterator of mapAreas) {
+    for (const land of mapAreas) {
         //Add hint on mouseenter
-        iterator.addEventListener('mouseenter', function (event) {
-            hintSection.innerHTML = `${randomQuestions[getRandomIntInclusive(0, 9)]}`
+        land.addEventListener('mouseenter', function (event) {
+            hintSection.innerHTML = `${randomQuestions[getRandomIntInclusive(0, randomQuestions.length - 1)]}`
         })
         //Remove hint on mouseleave
-        iterator.addEventListener('mouseleave', function (event) {
+        land.addEventListener('mouseleave', function (event) {
             hintSection.innerHTML = '. . .'
         })
-        //Change content on click
-        iterator.addEventListener('click', function (event) {
-
-            //Prohibit double click
-            if (event.target.classList.contains('show')) {
-                return false
-            } else {
-                changeContent(event)
-                event.target.classList.add('show')
-                for (const iterator of mapAreas) {
-                    if (iterator != event.target) {
-                        iterator.classList.remove('show')
-                    }
-                }
-            }
-
-        })
     }
+
+    //Change content on click
+    map.addEventListener('click', changeContent)
 
     //Show main content on click
     country.addEventListener('click', changeContent)
 }
+
+
 
 function recalcMap() {
     if (document.documentElement.clientWidth >= 1040) {
@@ -72,6 +62,10 @@ function recalcMap() {
     }
 }
 
+function recalcContentBlock() {
+    contentSection.style.minHeight = mapContainer.offsetHeight + 'px'
+}
+
 function showContent(param) {
     const content = createContent(param)
     contentSection.appendChild(content)
@@ -83,21 +77,30 @@ function hideContent() {
 }
 
 function changeContent(event) {
-    hideContent()
-    for (let item of mapAreas) {
-        item.style.fill = '#000'
+    //Remove all clickListeners for animation time - solution for problem with fast change content
+
+    if (event.target.classList.contains('land-active')) {
+        return false
+    } else {
+        //Map visualization
+        for (const land of mapAreas) {
+            land.classList.remove('land-active')
+        }
+        map.removeEventListener('click', changeContent)
+        event.target.classList.toggle('land-active')
+
+        //Change content
+        country.removeEventListener('click', changeContent)
+        hideContent()
+        contentSection.addEventListener('transitionend', function () {
+            contentSection.innerHTML = ''
+            showContent(content[event.target.id])
+            contentSection.addEventListener('transitionend', function () {
+                map.addEventListener('click', changeContent)
+                country.addEventListener('click', changeContent)
+            }, { once: true })
+        }, { once: true })
     }
-    event.target.style.fill = '#00b0ff'
-    const target = getTargetId(event)
-    contentSection.addEventListener('transitionend', function () {
-        contentSection.innerHTML = ''
-        showContent(content[target])
-    }, { once: true })
-
-}
-
-function getTargetId(event) {
-    return event.target.id
 }
 
 function createContent(content) {
@@ -146,8 +149,6 @@ function createContent(content) {
 
     return fragment
 }
-
-
 
 function getRandomIntInclusive(min, max) {
     min = Math.ceil(min);
