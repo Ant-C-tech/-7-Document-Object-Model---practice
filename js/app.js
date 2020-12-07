@@ -1,6 +1,6 @@
 'use strict'
 
-import randomQuestions from './questions.js'
+import questions from './questions.js'
 import content from './content.js'
 
 const mapContainer = document.querySelector('.mapContainer')
@@ -32,7 +32,7 @@ function addListeners() {
     for (const land of mapAreas) {
         //Add hint on mouseenter
         land.addEventListener('mouseenter', function (event) {
-            hintSection.innerHTML = `${randomQuestions[getRandomIntInclusive(0, randomQuestions.length - 1)]}`
+            hintSection.innerHTML = `${questions[getRandomIntInclusive(0, questions.length - 1)]}`
         })
         //Remove hint on mouseleave
         land.addEventListener('mouseleave', function (event) {
@@ -66,8 +66,8 @@ function recalcContentBlock() {
     contentSection.style.minHeight = mapContainer.offsetHeight + 'px'
 }
 
-function showContent(param) {
-    const content = createContent(param)
+function showContent(id) {
+    const content = createContent(id)
     contentSection.appendChild(content)
     contentSection.classList.remove('content-hide')
 }
@@ -76,31 +76,32 @@ function hideContent() {
     contentSection.classList.add('content-hide')
 }
 
-function changeContent(event) {
+function changeContent({ target }) {
     //Remove all clickListeners for animation time - solution for problem with fast change content
 
-    if (event.target.classList.contains('land-active')) {
-        return false
-    } else {
-        //Map visualization
-        for (const land of mapAreas) {
-            land.classList.remove('land-active')
-        }
-        map.removeEventListener('click', changeContent)
-        event.target.classList.toggle('land-active')
-
-        //Change content
-        country.removeEventListener('click', changeContent)
-        hideContent()
-        contentSection.addEventListener('transitionend', function () {
-            contentSection.innerHTML = ''
-            showContent(content[event.target.id])
-            contentSection.addEventListener('transitionend', function () {
-                map.addEventListener('click', changeContent)
-                country.addEventListener('click', changeContent)
-            }, { once: true })
-        }, { once: true })
+    if (target.classList.contains('land-active')) {
+        return
     }
+
+    //Map visualization
+    for (const land of mapAreas) {
+        land.classList.remove('land-active')
+    }
+    map.removeEventListener('click', changeContent)
+    target.classList.add('land-active')
+
+    //Change content
+    country.removeEventListener('click', changeContent)
+    hideContent()
+    contentSection.addEventListener('transitionend', function () {
+        contentSection.innerHTML = ''
+        showContent(content[target.id])
+        contentSection.addEventListener('transitionend', function () {
+            map.addEventListener('click', changeContent)
+            country.addEventListener('click', changeContent)
+        }, { once: true })
+    }, { once: true })
+
 }
 
 function createContent(content) {
@@ -117,9 +118,7 @@ function createContent(content) {
     title.textContent = content.title
     subtitle.textContent = content.subtitle
 
-    titleBlock.appendChild(title)
-    titleBlock.appendChild(subtitle)
-    fragment.appendChild(titleBlock)
+    titleBlock.append(title, subtitle)
 
     let textBlock = document.createElement('div')
     textBlock.classList.add('content__textBlock')
@@ -128,7 +127,6 @@ function createContent(content) {
         p.textContent = item
         textBlock.appendChild(p)
     }
-    fragment.appendChild(textBlock)
 
     let imgBlock = document.createElement('div')
     imgBlock.classList.add('content__imgBlock')
@@ -138,14 +136,13 @@ function createContent(content) {
         let img = document.createElement('img')
         img.setAttribute('src', `${item.src}`)
         img.setAttribute('alt', `${item.descript}`)
-        figure.appendChild(img)
         let figcaption = document.createElement('figcaption')
         figcaption.classList.add('imgBlock__caption')
         figcaption.textContent = item.descript
-        figure.appendChild(figcaption)
+        figure.append(img, figcaption)
         imgBlock.appendChild(figure)
     }
-    fragment.appendChild(imgBlock)
+    fragment.append(titleBlock, textBlock, imgBlock)
 
     return fragment
 }
