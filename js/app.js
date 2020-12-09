@@ -24,24 +24,24 @@ function initApp() {
 
 function addListeners() {
 
-    window.onresize = function () {
+    window.onresize = function() {
         recalcMap()
         recalcContentBlock()
     }
 
     for (const land of mapAreas) {
         //Add hint on mouseenter
-        land.addEventListener('mouseenter', function (event) {
-            hintSection.innerHTML = `${questions[getRandomIntInclusive(0, questions.length - 1)]}`
-        })
-        //Remove hint on mouseleave
-        land.addEventListener('mouseleave', function (event) {
+        land.addEventListener('mouseenter', function(event) {
+                hintSection.innerHTML = `${questions[getRandomIntInclusive(0, questions.length - 1)]}`
+            })
+            //Remove hint on mouseleave
+        land.addEventListener('mouseleave', function(event) {
             hintSection.innerHTML = '. . .'
         })
     }
 
     //Change content on click
-    map.addEventListener('click', changeContent)
+    map.addEventListener('mouseup', changeContent)
 
     //Show main content on click
     country.addEventListener('click', changeContent)
@@ -77,7 +77,6 @@ function hideContent() {
 }
 
 function changeContent({ target }) {
-    //Remove all clickListeners for animation time - solution for problem with fast change content
 
     if (target.classList.contains('land-active')) {
         return
@@ -87,29 +86,28 @@ function changeContent({ target }) {
     for (const land of mapAreas) {
         land.classList.remove('land-active')
     }
-    map.removeEventListener('click', changeContent)
     target.classList.add('land-active')
 
     //Change content
-    country.removeEventListener('click', changeContent)
     hideContent()
-    contentSection.addEventListener('transitionend', function () {
+    map.classList.add('map-notActive')
+    country.classList.add('mapContainer__title-notActive')
+    contentSection.addEventListener('transitionend', function() {
         contentSection.innerHTML = ''
         showContent(content[target.id])
-        contentSection.addEventListener('transitionend', function () {
-            map.addEventListener('click', changeContent)
-            country.addEventListener('click', changeContent)
+        contentSection.addEventListener('transitionend', function() {
+            map.classList.remove('map-notActive')
+            country.classList.remove('mapContainer__title-notActive')
         }, { once: true })
     }, { once: true })
-
 }
 
 function createContent(content) {
-    let fragment = new DocumentFragment()
+    const fragment = new DocumentFragment()
 
-    let titleBlock = document.createElement('div')
-    let title = document.createElement('div')
-    let subtitle = document.createElement('div')
+    const titleBlock = document.createElement('div')
+    const title = document.createElement('div')
+    const subtitle = document.createElement('div')
 
     titleBlock.classList.add('content__titleBlock')
     title.classList.add('content__title')
@@ -120,23 +118,23 @@ function createContent(content) {
 
     titleBlock.append(title, subtitle)
 
-    let textBlock = document.createElement('div')
+    const textBlock = document.createElement('div')
     textBlock.classList.add('content__textBlock')
     for (let item of content.text) {
-        let p = document.createElement('p')
+        const p = document.createElement('p')
         p.textContent = item
         textBlock.appendChild(p)
     }
 
-    let imgBlock = document.createElement('div')
+    const imgBlock = document.createElement('div')
     imgBlock.classList.add('content__imgBlock')
     for (let item of content.media) {
-        let figure = document.createElement('figure')
+        const figure = document.createElement('figure')
         figure.classList.add('imgBlock__item')
-        let img = document.createElement('img')
+        const img = document.createElement('img')
         img.setAttribute('src', `${item.src}`)
         img.setAttribute('alt', `${item.descript}`)
-        let figcaption = document.createElement('figcaption')
+        const figcaption = document.createElement('figcaption')
         figcaption.classList.add('imgBlock__caption')
         figcaption.textContent = item.descript
         figure.append(img, figcaption)
